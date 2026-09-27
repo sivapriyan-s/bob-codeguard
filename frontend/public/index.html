@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bob CodeGuard</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🛡️</span>
+        <span class="logo-text">Bob <strong>CodeGuard</strong></span>
+        <span class="logo-badge">AI Engineering Intelligence</span>
+      </div>
+      <nav class="nav">
+        <a href="#" class="nav-link active" data-view="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-view="jobs">Jobs</a>
+        <a href="#" class="nav-link" data-view="about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Main ──────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Dashboard View -->
+    <div id="view-dashboard" class="view active">
+      <div class="panel analyze-panel">
+        <h2 class="panel-title">Analyze Repository</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Repository <span class="hint">(owner/repo)</span></label>
+            <input id="inp-repo" type="text" placeholder="e.g. torvalds/linux" />
+          </div>
+          <div class="form-group">
+            <label>Mode</label>
+            <select id="inp-mode">
+              <option value="full_pr">Full PR Analysis (Review + Detective + Docs)</option>
+              <option value="pr_review">PR Review Only</option>
+              <option value="pr_detective">PR Detective Only</option>
+              <option value="bug_fix">Bug Fix (Issue)</option>
+              <option value="full_issue">Full Issue Analysis (Bug + Docs)</option>
+              <option value="doc_sync">Documentation Sync Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>PR / Issue Number</label>
+            <input id="inp-ref" type="number" placeholder="e.g. 142" min="1" />
+          </div>
+          <div class="form-group form-group--action">
+            <button id="btn-analyze" class="btn btn--primary">
+              <span class="btn-icon">⚡</span> Analyze
+            </button>
+          </div>
+        </div>
+        <div id="analyze-error" class="error-banner hidden"></div>
+      </div>
+
+      <!-- Workflow status -->
+      <div id="workflow-panel" class="panel hidden">
+        <h2 class="panel-title">
+          Workflow
+          <span id="workflow-repo" class="panel-subtitle"></span>
+        </h2>
+        <div id="workflow-steps" class="workflow-steps"></div>
+        <div id="workflow-spinner" class="spinner-row">
+          <div class="spinner"></div>
+          <span id="workflow-status-text">Running analysis…</span>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="results-panel" class="panel hidden">
+        <!-- Summary bar -->
+        <div id="summary-bar" class="summary-bar"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active" data-tab="findings">Findings</button>
+          <button class="tab" data-tab="impact">Impact Map</button>
+          <button class="tab" data-tab="docs">Documentation</button>
+          <button class="tab" data-tab="changes" style="display:none">Code Changes</button>
+          <button class="tab" data-tab="report">Full Report</button>
+        </div>
+
+        <div id="tab-findings" class="tab-pane active">
+          <div id="findings-list"></div>
+        </div>
+
+        <div id="tab-impact" class="tab-pane">
+          <div id="impact-tree"></div>
+        </div>
+
+        <div id="tab-docs" class="tab-pane">
+          <div id="drifts-list"></div>
+        </div>
+
+        <div id="tab-changes" class="tab-pane">
+          <div id="changes-list"></div>
+        </div>
+
+        <div id="tab-report" class="tab-pane">
+          <div id="report-content"></div>
+          <button id="btn-copy-report" class="btn btn--secondary" style="margin-top:12px">
+            📋 Copy Report
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs View -->
+    <div id="view-jobs" class="view">
+      <div class="panel">
+        <h2 class="panel-title">Analysis Jobs</h2>
+        <button class="btn btn--secondary" id="btn-refresh-jobs" style="margin-bottom:16px">🔄 Refresh</button>
+        <div id="jobs-list"></div>
+      </div>
+    </div>
+
+    <!-- About View -->
+    <div id="view-about" class="view">
+      <div class="panel">
+        <h2 class="panel-title">About Bob CodeGuard</h2>
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-icon">🔍</div>
+            <h3>Stage 1 — Bug Fix</h3>
+            <p>Analyzes GitHub issues, traces root causes through source code, proposes evidence-based fixes, and generates regression tests.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">🔬</div>
+            <h3>Stage 2 — PR Review</h3>
+            <p>Runs four specialized agents in parallel: Security, Code Quality, Testing, and Regression. Every finding is grounded in real evidence.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">🕵️</div>
+            <h3>Stage 3 — PR Detective</h3>
+            <p>Traces the ripple effect of every change — direct deps, indirect deps, callers, APIs, DB, tests, and docs far beyond the diff.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">📖</div>
+            <h3>Stage 4 — Doc Sync</h3>
+            <p>Compares source code against all documentation and detects drift: outdated API examples, wrong parameters, missing entries.</p>
+          </div>
+        </div>
+        <div class="arch-block">
+          <h3>Architecture</h3>
+          <pre class="arch-pre">GitHub Repository
+       │
+       ├── Issue / Pull Request
+              │
+              ▼
+       Bob CodeGuard Orchestrator
+              │
+      ┌───────┼────────┐
+      ▼       ▼        ▼
+   Bug      Review   Detective
+   Agent    Agents    Agent
+   (Stage 1)(Stage 2)(Stage 3)
+      │       │        │
+      └───────┼────────┘
+              ▼
+       Documentation Agent (Stage 4)
+              │
+              ▼
+       Validation + Unified Report</pre>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
