@@ -213,6 +213,15 @@ def test_analyze_starts_job(api_client):
     assert data["status"] == "pending"
 
 
+def test_model_candidates_include_safe_fallbacks():
+    from codeguard.core.llm import get_model_candidates
+
+    candidates = get_model_candidates("llama-3.3-70b-versatile")
+    assert candidates[0] == "llama-3.3-70b-versatile"
+    assert "llama-3.1-8b-instant" in candidates
+    assert "openai/gpt-oss-120b" in candidates
+
+
 def test_patch_no_bug_fix(api_client):
     """patch endpoint returns 404 for jobs without bug_fix data."""
     # Start a doc_sync job (no bug fix)

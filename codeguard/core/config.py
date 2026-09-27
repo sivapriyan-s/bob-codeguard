@@ -9,7 +9,7 @@ from pydantic import Field
 class Settings(BaseSettings):
     github_token: str
     openai_api_key: str
-    openai_model: str = "llama-3.3-70b-versatile"
+    openai_model: str = "llama-3.1-8b-instant"
     openai_base_url: str = "https://api.groq.com/openai/v1"
     host: str = "0.0.0.0"
     port: int = 8000

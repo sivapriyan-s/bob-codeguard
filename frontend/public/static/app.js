@@ -45,7 +45,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 $btn.analyze.addEventListener('click', startAnalysis);
 
 async function startAnalysis() {
-  const repo = $inp.repo.value.trim();
+  // Accept full GitHub URLs like https://github.com/owner/repo — extract owner/repo
+  let repo = $inp.repo.value.trim();
+  const urlMatch = repo.match(/github\.com\/([^/]+\/[^/]+?)(?:\.git)?\/?$/);
+  if (urlMatch) {
+    repo = urlMatch[1];
+    $inp.repo.value = repo; // update field to show cleaned value
+  }
   const mode = $inp.mode.value;
   const ref  = $inp.ref.value.trim();
 
